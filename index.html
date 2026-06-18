@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Prayer Roll" />
+  <meta name="theme-color" content="#3c5b3b" />
+  <link rel="manifest" href="manifest.json" />
+  <title>A Company of Names · The Abbey</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:    #3c5b3b;
+      --midnight: #00264d;
+      --sage:     #8b9576;
+      --parchment:#d4c4ab;
+      --walnut:   #664629;
+      --red:      #d22532;
+      --page:     #f8f4ec;
+      --serif: 'EB Garamond', Garamond, Georgia, serif;
+      --sans: Avenir, 'Avenir Next', 'Century Gothic', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--page);
+      font-family: var(--serif);
+      color: var(--midnight);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    #app {
+      width: 100%;
+      max-width: 440px;
+      padding: 16px 16px 40px;
+    }
+
+    .card {
+      background: var(--parchment);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* ── SETUP ── */
+    #setup-screen { padding: 24px; }
+    #setup-screen h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 2px; }
+    #setup-screen .sub { font-family: var(--sans); font-size: .7rem; letter-spacing: .06em; color: var(--walnut); margin-bottom: 20px; }
+    #setup-screen p { font-size: 1rem; line-height: 1.6; margin-bottom: 12px; color: var(--midnight); }
+    #setup-screen .hint { font-family: var(--sans); font-size: .72rem; color: var(--walnut); line-height: 1.5; margin-bottom: 10px; }
+    textarea {
+      width: 100%; height: 180px; border-radius: 6px; padding: 10px;
+      font-family: var(--sans); font-size: .8rem; border: 1px solid rgba(102,70,41,.3);
+      background: white; outline: none; resize: vertical; margin-bottom: 10px;
+    }
+    .btn-primary {
+      display: block; width: 100%; padding: 11px;
+      background: var(--green); color: white; border: none; border-radius: 6px;
+      font-family: var(--sans); font-size: .85rem; font-weight: 500; cursor: pointer;
+    }
+    .btn-primary:active { opacity: .85; }
+    .btn-ghost {
+      display: block; width: 100%; padding: 10px;
+      background: transparent; color: var(--walnut);
+      border: 1px solid rgba(102,70,41,.4); border-radius: 6px;
+      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
+    }
+    .btn-danger {
+      display: block; width: 100%; padding: 10px;
+      background: transparent; color: var(--red);
+      border: 1px solid var(--red); border-radius: 6px;
+      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
+    }
+    .error { font-family: var(--sans); font-size: .78rem; color: var(--red); margin-bottom: 10px; }
+
+    /* ── MAIN ── */
+    #main-screen { padding: 20px 20px 0; }
+    .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .day-label { font-family: var(--sans); font-size: .65rem; letter-spacing: .06em; color: var(--walnut); margin-bottom: 3px; }
+    .date-heading { font-size: 1.25rem; font-weight: 600; color: var(--midnight); }
+    .icon-btn {
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--walnut); display: flex; align-items: center;
+    }
+    .nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .today-btn {
+      font-family: var(--sans); font-size: .72rem; color: var(--midnight);
+      border: 1px solid rgba(0,38,77,.35); background: transparent;
+      border-radius: 20px; padding: 4px 14px; cursor: pointer;
+    }
+    .names-list { padding: 0 20px; }
+    .name-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid rgba(102,70,41,.15);
+      background: none; border-left: none; border-right: none; border-top: none;
+      width: 100%; text-align: left; cursor: pointer;
+    }
+    .name-row:last-child { border-bottom: none; }
+    .name-text { font-size: 1.05rem; color: var(--midnight); transition: opacity .15s; }
+    .name-text.done { opacity: .4; }
+    .name-meta { font-family: var(--sans); font-size: .65rem; color: var(--sage); letter-spacing: .04em; margin-top: 2px; }
+    .check-circle {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      border: 1.5px solid var(--sage); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s;
+    }
+    .check-circle.checked { background: var(--green); border-color: var(--green); }
+    .check-circle svg { display: none; }
+    .check-circle.checked svg { display: block; }
+    .actions { padding: 12px 20px 20px; }
+    .progress-area { padding: 0 20px 20px; }
+    .progress-label { font-family: var(--sans); font-size: .68rem; color: var(--walnut); margin-bottom: 6px; }
+    .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+    .dot {
+      width: 14px; height: 14px; border-radius: 50%; cursor: pointer;
+      border: 1.5px solid var(--sage); background: transparent;
+      transition: background .15s, border-color .15s;
+    }
+    .dot.complete { background: var(--green); border-color: var(--green); }
+    .dot.partial { background: rgba(60,91,59,.4); border-color: var(--green); }
+    .dot.today { border-color: var(--red); border-width: 2px; }
+    .dot.selected { border-color: var(--midnight); }
+    .roster-link {
+      display: flex; align-items: center; gap: 5px; margin-top: 12px;
+      font-family: var(--sans); font-size: .72rem; color: var(--walnut);
+      background: none; border: none; cursor: pointer; padding: 4px 0;
+    }
+    .empty-day { padding: 32px 20px; text-align: center; font-size: 1rem; color: var(--walnut); }
+
+    /* ── SETTINGS ── */
+    #settings-screen { padding: 24px; }
+    #settings-screen h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 2px; }
+    .settings-stats { font-family: var(--sans); font-size: .72rem; color: var(--walnut); margin-bottom: 18px; }
+    #settings-screen p { font-size: .95rem; line-height: 1.5; margin-bottom: 10px; }
+    .close-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .section-label { font-family: var(--sans); font-size: .7rem; letter-spacing: .05em; color: var(--walnut); margin-bottom: 8px; margin-top: 18px; }
+    hr { border: none; border-top: 1px solid rgba(102,70,41,.25); margin: 16px 0; }
+
+    /* ── INSTALL BANNER ── */
+    #install-banner {
+      background: var(--midnight); color: white; border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 12px;
+      font-family: var(--sans); font-size: .78rem; line-height: 1.5;
+      display: none;
+    }
+    #install-banner.show { display: block; }
+    #install-banner strong { display: block; margin-bottom: 4px; font-size: .82rem; }
+    #dismiss-banner {
+      background: none; border: 1px solid rgba(255,255,255,.4); color: white;
+      border-radius: 4px; padding: 4px 10px; font-size: .72rem; cursor: pointer; margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="install-banner">
+    <strong>Add to your Home Screen</strong>
+    Tap the Share button in Safari, then "Add to Home Screen" — Prayer Roll will appear as an app icon.
+    <br><button id="dismiss-banner">Got it</button>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen" class="card" style="display:none">
+    <h1>A Company of Names</h1>
+    <p class="sub">THE ABBEY · DAILY PRAYER ROTATION</p>
+    <p>Paste your roster below, one person per line, to spread every name across a 30-day cycle.</p>
+    <p class="hint">
+      Format: Name, Member or Attendee, Household (optional)<br>
+      e.g. <em>Jane Smith, Member, Smith Family</em>
+    </p>
+    <textarea id="roster-input" placeholder="Jane Smith, Member, Smith Family&#10;Tom Smith, Member, Smith Family&#10;Maria Lopez, Attendee"></textarea>
+    <p id="setup-error" class="error" style="display:none"></p>
+    <button class="btn-primary" onclick="initRoster()">Begin the rotation</button>
+    <p class="hint" style="margin-top:14px">
+      Don't have your Realm export yet? Start with names you know now — you can replace the full roster from Settings at any time. Ask your admin for: full name, Member or Attendee status, and household grouping so families land on the same day.
+    </p>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main-screen" class="card" style="display:none">
+    <div class="header-row">
+      <div>
+        <p class="day-label" id="day-label"></p>
+        <p class="date-heading" id="date-heading"></p>
+      </div>
+      <button class="icon-btn" onclick="showSettings()" aria-label="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="nav-row">
+      <button class="icon-btn" onclick="shiftDay(-1)" aria-label="Previous day">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="today-btn" onclick="goToday()">Today</button>
+      <button class="icon-btn" onclick="shiftDay(1)" aria-label="Next day">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div id="names-list" class="names-list"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="mark-all-btn" onclick="toggleMarkAll()"></button>
+    </div>
+
+    <div class="progress-area">
+      <p class="progress-label" id="progress-label"></p>
+      <div class="dot-grid" id="dot-grid"></div>
+      <button class="roster-link" onclick="showSettings()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="roster-count-label"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settings-screen" class="card" style="display:none">
+    <div class="close-row">
+      <h2>Roster Settings</h2>
+      <button class="icon-btn" onclick="showMain()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="settings-stats" id="settings-stats"></p>
+    <p>Paste a fresh export from Realm to update the roster. The cycle will restart at Day 1.</p>
+    <textarea id="update-input" placeholder="Jane Smith, Member, Smith Family&#10;Tom Smith, Member, Smith Family"></textarea>
+    <p id="settings-error" class="error" style="display:none"></p>
+    <button class="btn-primary" onclick="updateRoster()">Save & restart the 30-day cycle</button>
+    <p class="hint" style="margin-top:10px">Updating reshuffles everyone evenly. Families with the same household name stay together on the same day.</p>
+    <hr>
+    <button class="btn-danger" onclick="clearAll()">Clear all data and start over</button>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const CYCLE = 30;
+let state = {
+  persons: [],          // [{id, name, type, household}]
+  assignment: {},       // {"1": [ids], "2": [ids], ...}
+  cycleStartDate: null, // "YYYY-MM-DD"
+  completions: {},      // {"YYYY-MM-DD": [ids]}
+};
+let selectedDay = 1;
+
+// ─── Storage ─────────────────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem("abbey_prayer_v1", JSON.stringify(state));
+}
+function load() {
+  try {
+    const raw = localStorage.getItem("abbey_prayer_v1");
+    if (raw) state = JSON.parse(raw);
+  } catch(e) {}
+}
+
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+function dateKey(d) { return d.toISOString().slice(0,10); }
+function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function daysBetween(a, b) {
+  const _a = new Date(a); _a.setHours(0,0,0,0);
+  const _b = new Date(b); _b.setHours(0,0,0,0);
+  return Math.round((_b - _a) / 86400000);
+}
+function todayIndex() {
+  if (!state.cycleStartDate) return 1;
+  const diff = daysBetween(state.cycleStartDate, today());
+  return ((diff % CYCLE) + CYCLE) % CYCLE + 1;
+}
+function passNumber() {
+  if (!state.cycleStartDate) return 0;
+  return Math.floor(daysBetween(state.cycleStartDate, today()) / CYCLE);
+}
+function dateForDay(dayN) {
+  return addDays(new Date(state.cycleStartDate + "T00:00:00"),
+    passNumber() * CYCLE + (dayN - 1));
+}
+
+// ─── Parsing ─────────────────────────────────────────────────────────────────
+function parseRoster(text) {
+  return text.split("\n")
+    .map(l => l.trim()).filter(Boolean)
+    .map((line, i) => {
+      const p = line.split(",").map(x => x.trim());
+      const name = p[0];
+      let type = (p[1] || "").toLowerCase();
+      type = type.startsWith("a") ? "Attendee" : "Member";
+      const household = p[2] || "";
+      return { id: `p${i}_${Date.now()}`, name, type, household };
+    }).filter(p => p.name);
+}
+
+function buildAssignment(persons) {
+  const groups = {};
+  persons.forEach(p => {
+    const key = p.household ? `h:${p.household}` : `solo:${p.id}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p.id);
+  });
+  const groupList = Object.values(groups).sort((a,b) => b.length - a.length);
+  const loads = new Array(CYCLE).fill(0);
+  const assignment = {};
+  for (let i = 1; i <= CYCLE; i++) assignment[i] = [];
+  groupList.forEach(ids => {
+    let minDay = 1;
+    for (let d = 2; d <= CYCLE; d++) if (loads[d-1] < loads[minDay-1]) minDay = d;
+    assignment[minDay].push(...ids);
+    loads[minDay-1] += ids.length;
+  });
+  return assignment;
+}
+
+// ─── Actions ─────────────────────────────────────────────────────────────────
+function initRoster() {
+  const text = document.getElementById("roster-input").value;
+  const persons = parseRoster(text);
+  if (!persons.length) { showErr("setup-error", "Add at least one name to begin."); return; }
+  state.persons = persons;
+  state.assignment = buildAssignment(persons);
+  state.cycleStartDate = dateKey(today());
+  state.completions = {};
+  save();
+  selectedDay = 1;
+  showMain();
+}
+
+function updateRoster() {
+  const text = document.getElementById("update-input").value;
+  const persons = parseRoster(text);
+  if (!persons.length) { showErr("settings-error", "Paste your updated roster before saving."); return; }
+  state.persons = persons;
+  state.assignment = buildAssignment(persons);
+  state.cycleStartDate = dateKey(today());
+  state.completions = {};
+  save();
+  selectedDay = 1;
+  showMain();
+}
+
+function clearAll() {
+  if (!confirm("Clear all data and start over?")) return;
+  localStorage.removeItem("abbey_prayer_v1");
+  state = { persons: [], assignment: {}, cycleStartDate: null, completions: {} };
+  showSetup();
+}
+
+function toggleName(id) {
+  const d = dateKey(dateForDay(selectedDay));
+  const done = state.completions[d] || [];
+  state.completions[d] = done.includes(id) ? done.filter(x => x !== id) : [...done, id];
+  save();
+  renderMain();
+}
+
+function toggleMarkAll() {
+  const ids = state.assignment[selectedDay] || [];
+  const d = dateKey(dateForDay(selectedDay));
+  const done = state.completions[d] || [];
+  const allDone = ids.every(id => done.includes(id));
+  state.completions[d] = allDone ? [] : [...ids];
+  save();
+  renderMain();
+}
+
+function shiftDay(n) {
+  selectedDay = ((selectedDay - 1 + n + CYCLE) % CYCLE) + 1;
+  renderMain();
+}
+
+function goToday() {
+  selectedDay = todayIndex();
+  renderMain();
+}
+
+// ─── Rendering ───────────────────────────────────────────────────────────────
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = "block";
+}
+
+function showSetup() {
+  document.getElementById("setup-screen").style.display = "block";
+  document.getElementById("main-screen").style.display = "none";
+  document.getElementById("settings-screen").style.display = "none";
+}
+
+function showMain() {
+  document.getElementById("setup-screen").style.display = "none";
+  document.getElementById("main-screen").style.display = "block";
+  document.getElementById("settings-screen").style.display = "none";
+  renderMain();
+}
+
+function showSettings() {
+  const members = state.persons.filter(p => p.type === "Member").length;
+  const attendees = state.persons.length - members;
+  document.getElementById("settings-stats").textContent =
+    `Current roster: ${state.persons.length} people · ${members} members · ${attendees} attendees`;
+  document.getElementById("update-input").value = "";
+  document.getElementById("settings-error").style.display = "none";
+  document.getElementById("setup-screen").style.display = "none";
+  document.getElementById("main-screen").style.display = "none";
+  document.getElementById("settings-screen").style.display = "block";
+}
+
+function renderMain() {
+  const ti = todayIndex();
+  const d = dateKey(dateForDay(selectedDay));
+  const ids = state.assignment[selectedDay] || [];
+  const done = state.completions[d] || [];
+  const allDone = ids.length > 0 && ids.every(id => done.includes(id));
+  const byId = Object.fromEntries(state.persons.map(p => [p.id, p]));
+
+  const dayDate = dateForDay(selectedDay);
+  const isToday = selectedDay === ti;
+  document.getElementById("day-label").textContent =
+    `THE ABBEY · DAY ${selectedDay} OF ${CYCLE}`;
+  document.getElementById("date-heading").textContent =
+    dayDate.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" }) +
+    (isToday ? " — Today" : "");
+
+  // Names list
+  const list = document.getElementById("names-list");
+  if (ids.length === 0) {
+    list.innerHTML = `<p class="empty-day">No one assigned to this day.</p>`;
+  } else {
+    list.innerHTML = ids.map(id => {
+      const p = byId[id];
+      if (!p) return "";
+      const isDone = done.includes(id);
+      return `
+        <button class="name-row" onclick="toggleName('${id}')">
+          <div>
+            <p class="name-text${isDone ? " done" : ""}">${p.name}</p>
+            <p class="name-meta">${p.type.toUpperCase()}${p.household ? " · "+p.household : ""}</p>
+          </div>
+          <span class="check-circle${isDone ? " checked" : ""}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>`;
+    }).join("");
+  }
+
+  // Mark all button
+  const markBtn = document.getElementById("mark-all-btn");
+  if (ids.length === 0) { markBtn.style.display = "none"; }
+  else {
+    markBtn.style.display = "block";
+    markBtn.textContent = allDone ? "Mark all as not yet prayed" : "Mark all as prayed for";
+    markBtn.style.background = allDone ? "transparent" : "var(--green)";
+    markBtn.style.color = allDone ? "var(--walnut)" : "white";
+    markBtn.style.border = allDone ? "1px solid rgba(102,70,41,.4)" : "none";
+  }
+
+  // Progress
+  const pn = passNumber();
+  const totalPrayed = state.persons.filter(p => {
+    const dayN = Object.keys(state.assignment).find(k => state.assignment[k].includes(p.id));
+    if (!dayN) return false;
+    const ds = dateKey(addDays(new Date(state.cycleStartDate + "T00:00:00"), pn * CYCLE + (Number(dayN)-1)));
+    return (state.completions[ds] || []).includes(p.id);
+  }).length;
+  document.getElementById("progress-label").textContent =
+    `${totalPrayed} of ${state.persons.length} prayed for this cycle`;
+  document.getElementById("roster-count-label").textContent =
+    `Manage roster (${state.persons.length})`;
+
+  // Dots
+  const grid = document.getElementById("dot-grid");
+  grid.innerHTML = Array.from({length: CYCLE}, (_, i) => {
+    const dayN = i + 1;
+    const ds = dateKey(addDays(new Date(state.cycleStartDate + "T00:00:00"), pn * CYCLE + i));
+    const dayIds = state.assignment[dayN] || [];
+    const dayDone = (state.completions[ds] || []).filter(id => dayIds.includes(id));
+    const ratio = dayIds.length ? dayDone.length / dayIds.length : 0;
+    let cls = "dot";
+    if (ratio >= 1) cls += " complete";
+    else if (ratio > 0) cls += " partial";
+    if (dayN === ti) cls += " today";
+    if (dayN === selectedDay) cls += " selected";
+    return `<button class="${cls}" onclick="selectDay(${dayN})" aria-label="Day ${dayN}"></button>`;
+  }).join("");
+}
+
+function selectDay(n) { selectedDay = n; renderMain(); }
+
+// ─── Install banner ───────────────────────────────────────────────────────────
+function maybeShowInstallBanner() {
+  const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  const dismissed = localStorage.getItem("install_dismissed");
+  if (isSafari && !isStandalone && !dismissed) {
+    document.getElementById("install-banner").classList.add("show");
+  }
+}
+
+document.getElementById("dismiss-banner").addEventListener("click", () => {
+  document.getElementById("install-banner").classList.remove("show");
+  localStorage.setItem("install_dismissed", "1");
+});
+
+// ─── Service Worker ───────────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+load();
+maybeShowInstallBanner();
+if (state.persons.length === 0) {
+  showSetup();
+} else {
+  selectedDay = todayIndex();
+  showMain();
+}
+</script>
+</body>
+</html>
