@@ -10,10 +10,7 @@
   <link rel="manifest" href="manifest.json" />
   <title>A Company of Names · The Abbey</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --green:    #3c5b3b;
       --midnight: #00264d;
@@ -25,70 +22,53 @@
       --serif: 'EB Garamond', Garamond, Georgia, serif;
       --sans: Avenir, 'Avenir Next', 'Century Gothic', 'Segoe UI', system-ui, sans-serif;
     }
-
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
     body {
       background: var(--page);
       font-family: var(--serif);
       color: var(--midnight);
       min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
+    #app { width: 100%; max-width: 440px; padding: 16px 16px 40px; }
+    .card { background: var(--parchment); border-radius: 12px; overflow: hidden; }
 
-    #app {
-      width: 100%;
-      max-width: 440px;
-      padding: 16px 16px 40px;
+    /* sync banner */
+    #sync-bar {
+      display: none; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 10px;
+      font-family: var(--sans); font-size: .72rem;
+    }
+    #sync-bar.syncing { display: flex; background: rgba(0,38,77,.08); color: var(--midnight); }
+    #sync-bar.updated { display: flex; background: rgba(60,91,59,.12); color: var(--green); }
+    #sync-bar.error   { display: flex; background: rgba(210,37,50,.08); color: var(--red); }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid currentColor;
+      border-top-color: transparent; border-radius: 50%;
+      animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* install banner */
+    #install-banner {
+      background: var(--midnight); color: white; border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 12px;
+      font-family: var(--sans); font-size: .78rem; line-height: 1.5; display: none;
+    }
+    #install-banner.show { display: block; }
+    #install-banner strong { display: block; margin-bottom: 4px; font-size: .82rem; }
+    #dismiss-banner {
+      background: none; border: 1px solid rgba(255,255,255,.4); color: white;
+      border-radius: 4px; padding: 4px 10px; font-size: .72rem; cursor: pointer; margin-top: 8px;
     }
 
-    .card {
-      background: var(--parchment);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    /* ── SETUP ── */
-    #setup-screen { padding: 24px; }
-    #setup-screen h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 2px; }
-    #setup-screen .sub { font-family: var(--sans); font-size: .7rem; letter-spacing: .06em; color: var(--walnut); margin-bottom: 20px; }
-    #setup-screen p { font-size: 1rem; line-height: 1.6; margin-bottom: 12px; color: var(--midnight); }
-    #setup-screen .hint { font-family: var(--sans); font-size: .72rem; color: var(--walnut); line-height: 1.5; margin-bottom: 10px; }
-    textarea {
-      width: 100%; height: 180px; border-radius: 6px; padding: 10px;
-      font-family: var(--sans); font-size: .8rem; border: 1px solid rgba(102,70,41,.3);
-      background: white; outline: none; resize: vertical; margin-bottom: 10px;
-    }
-    .btn-primary {
-      display: block; width: 100%; padding: 11px;
-      background: var(--green); color: white; border: none; border-radius: 6px;
-      font-family: var(--sans); font-size: .85rem; font-weight: 500; cursor: pointer;
-    }
-    .btn-primary:active { opacity: .85; }
-    .btn-ghost {
-      display: block; width: 100%; padding: 10px;
-      background: transparent; color: var(--walnut);
-      border: 1px solid rgba(102,70,41,.4); border-radius: 6px;
-      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
-    }
-    .btn-danger {
-      display: block; width: 100%; padding: 10px;
-      background: transparent; color: var(--red);
-      border: 1px solid var(--red); border-radius: 6px;
-      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
-    }
-    .error { font-family: var(--sans); font-size: .78rem; color: var(--red); margin-bottom: 10px; }
-
-    /* ── MAIN ── */
+    /* main card sections */
     #main-screen { padding: 20px 20px 0; }
     .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .day-label { font-family: var(--sans); font-size: .65rem; letter-spacing: .06em; color: var(--walnut); margin-bottom: 3px; }
     .date-heading { font-size: 1.25rem; font-weight: 600; color: var(--midnight); }
-    .icon-btn {
-      background: none; border: none; cursor: pointer; padding: 4px;
-      color: var(--walnut); display: flex; align-items: center;
-    }
+    .icon-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--walnut); display: flex; align-items: center; }
     .nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .today-btn {
       font-family: var(--sans); font-size: .72rem; color: var(--midnight);
@@ -116,17 +96,32 @@
     .check-circle svg { display: none; }
     .check-circle.checked svg { display: block; }
     .actions { padding: 12px 20px 20px; }
+    .btn-primary {
+      display: block; width: 100%; padding: 11px;
+      background: var(--green); color: white; border: none; border-radius: 6px;
+      font-family: var(--sans); font-size: .85rem; font-weight: 500; cursor: pointer;
+    }
+    .btn-primary:active { opacity: .85; }
+    .btn-ghost {
+      display: block; width: 100%; padding: 10px; background: transparent; color: var(--walnut);
+      border: 1px solid rgba(102,70,41,.4); border-radius: 6px;
+      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
+    }
+    .btn-danger {
+      display: block; width: 100%; padding: 10px; background: transparent; color: var(--red);
+      border: 1px solid var(--red); border-radius: 6px;
+      font-family: var(--sans); font-size: .8rem; cursor: pointer; margin-top: 8px;
+    }
     .progress-area { padding: 0 20px 20px; }
     .progress-label { font-family: var(--sans); font-size: .68rem; color: var(--walnut); margin-bottom: 6px; }
     .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; }
     .dot {
       width: 14px; height: 14px; border-radius: 50%; cursor: pointer;
       border: 1.5px solid var(--sage); background: transparent;
-      transition: background .15s, border-color .15s;
     }
     .dot.complete { background: var(--green); border-color: var(--green); }
-    .dot.partial { background: rgba(60,91,59,.4); border-color: var(--green); }
-    .dot.today { border-color: var(--red); border-width: 2px; }
+    .dot.partial  { background: rgba(60,91,59,.4); border-color: var(--green); }
+    .dot.today    { border-color: var(--red); border-width: 2px; }
     .dot.selected { border-color: var(--midnight); }
     .roster-link {
       display: flex; align-items: center; gap: 5px; margin-top: 12px;
@@ -135,27 +130,20 @@
     }
     .empty-day { padding: 32px 20px; text-align: center; font-size: 1rem; color: var(--walnut); }
 
-    /* ── SETTINGS ── */
+    /* settings */
     #settings-screen { padding: 24px; }
     #settings-screen h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 2px; }
     .settings-stats { font-family: var(--sans); font-size: .72rem; color: var(--walnut); margin-bottom: 18px; }
-    #settings-screen p { font-size: .95rem; line-height: 1.5; margin-bottom: 10px; }
     .close-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .section-label { font-family: var(--sans); font-size: .7rem; letter-spacing: .05em; color: var(--walnut); margin-bottom: 8px; margin-top: 18px; }
+    .section-label { font-family: var(--sans); font-size: .7rem; letter-spacing: .05em; color: var(--walnut); margin: 16px 0 6px; text-transform: uppercase; }
+    .settings-note { font-family: var(--sans); font-size: .72rem; color: var(--walnut); line-height: 1.5; margin-top: 8px; }
+    .sync-time { font-family: var(--sans); font-size: .7rem; color: var(--sage); margin-top: 6px; }
     hr { border: none; border-top: 1px solid rgba(102,70,41,.25); margin: 16px 0; }
-
-    /* ── INSTALL BANNER ── */
-    #install-banner {
-      background: var(--midnight); color: white; border-radius: 10px;
-      padding: 12px 16px; margin-bottom: 12px;
-      font-family: var(--sans); font-size: .78rem; line-height: 1.5;
-      display: none;
-    }
-    #install-banner.show { display: block; }
-    #install-banner strong { display: block; margin-bottom: 4px; font-size: .82rem; }
-    #dismiss-banner {
-      background: none; border: 1px solid rgba(255,255,255,.4); color: white;
-      border-radius: 4px; padding: 4px 10px; font-size: .72rem; cursor: pointer; margin-top: 8px;
+    .error { font-family: var(--sans); font-size: .78rem; color: var(--red); margin: 6px 0; }
+    textarea {
+      width: 100%; height: 160px; border-radius: 6px; padding: 10px;
+      font-family: var(--sans); font-size: .8rem; border: 1px solid rgba(102,70,41,.3);
+      background: white; outline: none; resize: vertical;
     }
   </style>
 </head>
@@ -167,44 +155,36 @@
     <br><button id="dismiss-banner">Got it</button>
   </div>
 
-  <!-- SETUP -->
-  <div id="setup-screen" class="card" style="display:none">
-    <h1>A Company of Names</h1>
-    <p class="sub">THE ABBEY · DAILY PRAYER ROTATION</p>
-    <p>Paste your roster below, one person per line, to spread every name across a 30-day cycle.</p>
-    <p class="hint">
-      Format: Name, Member or Attendee, Household (optional)<br>
-      e.g. <em>Jane Smith, Member, Smith Family</em>
-    </p>
-    <textarea id="roster-input" placeholder="Jane Smith, Member, Smith Family&#10;Tom Smith, Member, Smith Family&#10;Maria Lopez, Attendee"></textarea>
-    <p id="setup-error" class="error" style="display:none"></p>
-    <button class="btn-primary" onclick="initRoster()">Begin the rotation</button>
-    <p class="hint" style="margin-top:14px">
-      Don't have your Realm export yet? Start with names you know now — you can replace the full roster from Settings at any time. Ask your admin for: full name, Member or Attendee status, and household grouping so families land on the same day.
-    </p>
+  <div id="sync-bar">
+    <span class="spinner" id="sync-spinner" style="display:none"></span>
+    <svg id="sync-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="20 6 9 17 4 12"/></svg>
+    <svg id="sync-warn" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="sync-msg"></span>
   </div>
 
   <!-- MAIN -->
   <div id="main-screen" class="card" style="display:none">
-    <div class="header-row">
-      <div>
-        <p class="day-label" id="day-label"></p>
-        <p class="date-heading" id="date-heading"></p>
+    <div style="padding: 20px 20px 0">
+      <div class="header-row">
+        <div>
+          <p class="day-label" id="day-label"></p>
+          <p class="date-heading" id="date-heading"></p>
+        </div>
+        <button class="icon-btn" onclick="showSettings()" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
       </div>
-      <button class="icon-btn" onclick="showSettings()" aria-label="Settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
-    </div>
-    <div class="nav-row">
-      <button class="icon-btn" onclick="shiftDay(-1)" aria-label="Previous day">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="today-btn" onclick="goToday()">Today</button>
-      <button class="icon-btn" onclick="shiftDay(1)" aria-label="Next day">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
+      <div class="nav-row">
+        <button class="icon-btn" onclick="shiftDay(-1)" aria-label="Previous">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="today-btn" onclick="goToday()">Today</button>
+        <button class="icon-btn" onclick="shiftDay(1)" aria-label="Next">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
     </div>
 
     <div id="names-list" class="names-list"></div>
@@ -225,53 +205,83 @@
 
   <!-- SETTINGS -->
   <div id="settings-screen" class="card" style="display:none">
-    <div class="close-row">
-      <h2>Roster Settings</h2>
-      <button class="icon-btn" onclick="showMain()" aria-label="Close">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+    <div style="padding: 24px">
+      <div class="close-row">
+        <h2>Roster Settings</h2>
+        <button class="icon-btn" onclick="showMain()" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="settings-stats" id="settings-stats"></p>
+
+      <div style="background: rgba(60,91,59,.1); border-radius: 8px; padding: 12px; margin-bottom: 4px;">
+        <p style="font-family: var(--sans); font-size: .78rem; color: var(--midnight); line-height: 1.5; margin-bottom: 8px;">
+          <strong>Auto-sync is on.</strong> The app checks for an updated <code>roster.csv</code> in your GitHub repository every time it opens.
+        </p>
+        <button class="btn-primary" onclick="syncNow()" style="padding: 8px; font-size: .78rem;">Check for updates now</button>
+        <p class="sync-time" id="last-synced-label"></p>
+      </div>
+
+      <p class="section-label">How to update the roster</p>
+      <p style="font-family: var(--sans); font-size: .78rem; color: var(--midnight); line-height: 1.6; margin-bottom: 6px;">
+        1. Get a fresh export from Realm (or have your admin prepare it)<br>
+        2. Format it like the <code>roster.csv</code> template: First Name, Last Name, Member Status<br>
+        3. Go to your GitHub repository → click <code>roster.csv</code> → click the pencil icon to edit, or upload a new file<br>
+        4. Open the app — it will sync automatically
+      </p>
+
+      <hr>
+      <p class="section-label">Manual override</p>
+      <p style="font-family: var(--sans); font-size: .78rem; color: var(--walnut); margin-bottom: 8px;">
+        Paste a roster directly if you need to make a quick change:
+      </p>
+      <textarea id="manual-input" placeholder="Jane,Smith,Member&#10;Tom,Smith,Member&#10;Maria,Lopez,Attendee"></textarea>
+      <p id="manual-error" class="error" style="display:none"></p>
+      <button class="btn-primary" onclick="manualUpdate()" style="margin-top: 8px;">Save & restart cycle</button>
+      <p class="settings-note">This overrides the synced roster until the next auto-sync.</p>
+
+      <hr>
+      <button class="btn-danger" onclick="clearAll()">Clear all data and start over</button>
     </div>
-    <p class="settings-stats" id="settings-stats"></p>
-    <p>Paste a fresh export from Realm to update the roster. The cycle will restart at Day 1.</p>
-    <textarea id="update-input" placeholder="Jane Smith, Member, Smith Family&#10;Tom Smith, Member, Smith Family"></textarea>
-    <p id="settings-error" class="error" style="display:none"></p>
-    <button class="btn-primary" onclick="updateRoster()">Save & restart the 30-day cycle</button>
-    <p class="hint" style="margin-top:10px">Updating reshuffles everyone evenly. Families with the same household name stay together on the same day.</p>
-    <hr>
-    <button class="btn-danger" onclick="clearAll()">Clear all data and start over</button>
+  </div>
+
+  <!-- EMPTY STATE (no roster yet) -->
+  <div id="empty-screen" class="card" style="display:none; padding: 24px;">
+    <h1 style="font-size: 1.6rem; font-weight: 600; margin-bottom: 4px;">A Company of Names</h1>
+    <p style="font-family: var(--sans); font-size: .7rem; letter-spacing: .06em; color: var(--walnut); margin-bottom: 20px;">THE ABBEY · DAILY PRAYER ROTATION</p>
+    <div id="empty-sync-status" style="font-family: var(--sans); font-size: .85rem; color: var(--midnight); margin-bottom: 16px; line-height: 1.6;"></div>
+    <p style="font-family: var(--sans); font-size: .78rem; color: var(--walnut); line-height: 1.5; margin-bottom: 14px;">
+      Or paste names manually to get started now:
+    </p>
+    <textarea id="empty-input" placeholder="Jane,Smith,Member&#10;Tom,Smith,Member&#10;Maria,Lopez,Attendee"></textarea>
+    <p id="empty-error" class="error" style="display:none"></p>
+    <button class="btn-primary" onclick="manualSetup()">Begin the rotation</button>
   </div>
 </div>
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
 const CYCLE = 30;
 let state = {
-  persons: [],          // [{id, name, type, household}]
-  assignment: {},       // {"1": [ids], "2": [ids], ...}
-  cycleStartDate: null, // "YYYY-MM-DD"
-  completions: {},      // {"YYYY-MM-DD": [ids]}
+  persons: [], assignment: {}, cycleStartDate: null,
+  completions: {}, lastSyncedCSV: null, lastSyncedAt: null
 };
 let selectedDay = 1;
 
-// ─── Storage ─────────────────────────────────────────────────────────────────
-function save() {
-  localStorage.setItem("abbey_prayer_v1", JSON.stringify(state));
-}
+// ── Storage ──────────────────────────────────────────────────────────────────
+function save() { localStorage.setItem("abbey_prayer_v2", JSON.stringify(state)); }
 function load() {
-  try {
-    const raw = localStorage.getItem("abbey_prayer_v1");
-    if (raw) state = JSON.parse(raw);
-  } catch(e) {}
+  try { const r = localStorage.getItem("abbey_prayer_v2"); if (r) state = JSON.parse(r); }
+  catch(e) {}
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
+// ── Date helpers ─────────────────────────────────────────────────────────────
 function dateKey(d) { return d.toISOString().slice(0,10); }
-function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
-function daysBetween(a, b) {
+function today()    { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function addDays(d,n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function daysBetween(a,b) {
   const _a = new Date(a); _a.setHours(0,0,0,0);
   const _b = new Date(b); _b.setHours(0,0,0,0);
-  return Math.round((_b - _a) / 86400000);
+  return Math.round((_b-_a)/86400000);
 }
 function todayIndex() {
   if (!state.cycleStartDate) return 1;
@@ -283,246 +293,278 @@ function passNumber() {
   return Math.floor(daysBetween(state.cycleStartDate, today()) / CYCLE);
 }
 function dateForDay(dayN) {
-  return addDays(new Date(state.cycleStartDate + "T00:00:00"),
-    passNumber() * CYCLE + (dayN - 1));
+  return addDays(new Date(state.cycleStartDate+"T00:00:00"), passNumber()*CYCLE+(dayN-1));
 }
 
-// ─── Parsing ─────────────────────────────────────────────────────────────────
-function parseRoster(text) {
-  return text.split("\n")
-    .map(l => l.trim()).filter(Boolean)
-    .map((line, i) => {
-      const p = line.split(",").map(x => x.trim());
-      const name = p[0];
-      let type = (p[1] || "").toLowerCase();
-      type = type.startsWith("a") ? "Attendee" : "Member";
-      const household = p[2] || "";
-      return { id: `p${i}_${Date.now()}`, name, type, household };
-    }).filter(p => p.name);
+// ── CSV parsing ──────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split("\n").map(l=>l.trim()).filter(Boolean);
+  const result = [];
+  for (const line of lines) {
+    // skip header row
+    if (/^first\s*name/i.test(line)) continue;
+    const parts = line.split(",").map(p=>p.trim().replace(/^"|"$/g,""));
+    const firstName = parts[0];
+    const lastName  = parts[1] || "";
+    if (!firstName) continue;
+    const name = lastName ? `${firstName} ${lastName}` : firstName;
+    let type = (parts[2]||"").toLowerCase();
+    type = type.startsWith("a") ? "Attendee" : "Member";
+    result.push({ id: `p${result.length}_${Date.now()}`, name, type });
+  }
+  return result;
 }
 
 function buildAssignment(persons) {
-  const groups = {};
-  persons.forEach(p => {
-    const key = p.household ? `h:${p.household}` : `solo:${p.id}`;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(p.id);
-  });
-  const groupList = Object.values(groups).sort((a,b) => b.length - a.length);
   const loads = new Array(CYCLE).fill(0);
   const assignment = {};
-  for (let i = 1; i <= CYCLE; i++) assignment[i] = [];
-  groupList.forEach(ids => {
+  for (let i=1; i<=CYCLE; i++) assignment[i] = [];
+  persons.forEach(p => {
     let minDay = 1;
-    for (let d = 2; d <= CYCLE; d++) if (loads[d-1] < loads[minDay-1]) minDay = d;
-    assignment[minDay].push(...ids);
-    loads[minDay-1] += ids.length;
+    for (let d=2; d<=CYCLE; d++) if (loads[d-1]<loads[minDay-1]) minDay=d;
+    assignment[minDay].push(p.id);
+    loads[minDay-1]++;
   });
   return assignment;
 }
 
-// ─── Actions ─────────────────────────────────────────────────────────────────
-function initRoster() {
-  const text = document.getElementById("roster-input").value;
-  const persons = parseRoster(text);
-  if (!persons.length) { showErr("setup-error", "Add at least one name to begin."); return; }
+function applyRoster(persons, resetCycle) {
   state.persons = persons;
   state.assignment = buildAssignment(persons);
-  state.cycleStartDate = dateKey(today());
-  state.completions = {};
+  if (resetCycle || !state.cycleStartDate) {
+    state.cycleStartDate = dateKey(today());
+    state.completions = {};
+  }
   save();
-  selectedDay = 1;
+}
+
+// ── Sync ─────────────────────────────────────────────────────────────────────
+function setSyncBar(mode, msg) {
+  const bar = document.getElementById("sync-bar");
+  bar.className = `${mode}`;
+  document.getElementById("sync-spinner").style.display = mode==="syncing" ? "block" : "none";
+  document.getElementById("sync-check").style.display  = mode==="updated" ? "block" : "none";
+  document.getElementById("sync-warn").style.display   = mode==="error"   ? "block" : "none";
+  document.getElementById("sync-msg").textContent = msg;
+  if (mode !== "syncing") setTimeout(()=>{ bar.className=""; }, 4000);
+}
+
+async function syncRoster(quiet=false) {
+  if (!quiet) setSyncBar("syncing", "Checking for roster updates…");
+  try {
+    const res = await fetch("./roster.csv?_="+Date.now(), { cache:"no-store" });
+    if (!res.ok) throw new Error("File not found");
+    const csv = await res.text();
+    if (csv === state.lastSyncedCSV) {
+      if (!quiet) setSyncBar("updated", "Roster is already up to date.");
+      updateLastSyncedLabel();
+      return;
+    }
+    const persons = parseCSV(csv);
+    if (!persons.length) throw new Error("No names found in roster.csv");
+    const hadRoster = state.persons.length > 0;
+    applyRoster(persons, hadRoster ? false : true);
+    state.lastSyncedCSV = csv;
+    state.lastSyncedAt = new Date().toISOString();
+    save();
+    setSyncBar("updated", `Roster updated — ${persons.length} people loaded.`);
+    updateLastSyncedLabel();
+    if (state.persons.length > 0) { selectedDay = todayIndex(); showMain(); }
+  } catch(e) {
+    if (!quiet) setSyncBar("error", "Couldn't reach roster.csv — using saved roster.");
+    updateLastSyncedLabel();
+    if (state.persons.length > 0) { selectedDay = todayIndex(); showMain(); }
+    else showEmpty("Couldn't load roster.csv from GitHub. You can paste names below to get started.");
+  }
+}
+
+function syncNow() { syncRoster(false); }
+
+function updateLastSyncedLabel() {
+  const el = document.getElementById("last-synced-label");
+  if (!el) return;
+  if (state.lastSyncedAt) {
+    const d = new Date(state.lastSyncedAt);
+    el.textContent = "Last synced: " + d.toLocaleDateString(undefined,{month:"short",day:"numeric"}) + " at " + d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+  } else {
+    el.textContent = "Not yet synced from GitHub.";
+  }
+}
+
+// ── Manual entry ─────────────────────────────────────────────────────────────
+function manualSetup() {
+  const text = document.getElementById("empty-input").value;
+  const persons = parseCSV(text);
+  if (!persons.length) { showErr("empty-error","Add at least one name to begin."); return; }
+  applyRoster(persons, true);
+  state.lastSyncedCSV = null;
+  save();
+  selectedDay = todayIndex();
   showMain();
 }
 
-function updateRoster() {
-  const text = document.getElementById("update-input").value;
-  const persons = parseRoster(text);
-  if (!persons.length) { showErr("settings-error", "Paste your updated roster before saving."); return; }
-  state.persons = persons;
-  state.assignment = buildAssignment(persons);
-  state.cycleStartDate = dateKey(today());
-  state.completions = {};
+function manualUpdate() {
+  const text = document.getElementById("manual-input").value;
+  const persons = parseCSV(text);
+  if (!persons.length) { showErr("manual-error","Paste your roster before saving."); return; }
+  applyRoster(persons, true);
+  state.lastSyncedCSV = null;
   save();
-  selectedDay = 1;
+  selectedDay = todayIndex();
   showMain();
 }
 
 function clearAll() {
   if (!confirm("Clear all data and start over?")) return;
-  localStorage.removeItem("abbey_prayer_v1");
-  state = { persons: [], assignment: {}, cycleStartDate: null, completions: {} };
-  showSetup();
+  localStorage.removeItem("abbey_prayer_v2");
+  state = { persons:[], assignment:{}, cycleStartDate:null, completions:{}, lastSyncedCSV:null, lastSyncedAt:null };
+  syncRoster(false);
 }
 
+// ── Toggle ───────────────────────────────────────────────────────────────────
 function toggleName(id) {
   const d = dateKey(dateForDay(selectedDay));
   const done = state.completions[d] || [];
-  state.completions[d] = done.includes(id) ? done.filter(x => x !== id) : [...done, id];
-  save();
-  renderMain();
+  state.completions[d] = done.includes(id) ? done.filter(x=>x!==id) : [...done, id];
+  save(); renderMain();
 }
-
 function toggleMarkAll() {
   const ids = state.assignment[selectedDay] || [];
   const d = dateKey(dateForDay(selectedDay));
   const done = state.completions[d] || [];
-  const allDone = ids.every(id => done.includes(id));
+  const allDone = ids.every(id=>done.includes(id));
   state.completions[d] = allDone ? [] : [...ids];
-  save();
-  renderMain();
+  save(); renderMain();
 }
+function shiftDay(n) { selectedDay = ((selectedDay-1+n+CYCLE)%CYCLE)+1; renderMain(); }
+function goToday()   { selectedDay = todayIndex(); renderMain(); }
+function selectDay(n){ selectedDay = n; renderMain(); }
 
-function shiftDay(n) {
-  selectedDay = ((selectedDay - 1 + n + CYCLE) % CYCLE) + 1;
-  renderMain();
-}
+// ── Screens ──────────────────────────────────────────────────────────────────
+function showErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.style.display="block"; }
+function hide(id) { document.getElementById(id).style.display="none"; }
+function show(id,display="block") { document.getElementById(id).style.display=display; }
 
-function goToday() {
-  selectedDay = todayIndex();
-  renderMain();
-}
-
-// ─── Rendering ───────────────────────────────────────────────────────────────
-function showErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = "block";
-}
-
-function showSetup() {
-  document.getElementById("setup-screen").style.display = "block";
-  document.getElementById("main-screen").style.display = "none";
-  document.getElementById("settings-screen").style.display = "none";
+function showEmpty(msg) {
+  hide("main-screen"); hide("settings-screen");
+  show("empty-screen");
+  document.getElementById("empty-sync-status").textContent = msg || "Loading roster from GitHub…";
 }
 
 function showMain() {
-  document.getElementById("setup-screen").style.display = "none";
-  document.getElementById("main-screen").style.display = "block";
-  document.getElementById("settings-screen").style.display = "none";
+  hide("empty-screen"); hide("settings-screen");
+  show("main-screen");
   renderMain();
 }
 
 function showSettings() {
-  const members = state.persons.filter(p => p.type === "Member").length;
+  const members = state.persons.filter(p=>p.type==="Member").length;
   const attendees = state.persons.length - members;
   document.getElementById("settings-stats").textContent =
-    `Current roster: ${state.persons.length} people · ${members} members · ${attendees} attendees`;
-  document.getElementById("update-input").value = "";
-  document.getElementById("settings-error").style.display = "none";
-  document.getElementById("setup-screen").style.display = "none";
-  document.getElementById("main-screen").style.display = "none";
-  document.getElementById("settings-screen").style.display = "block";
+    `${state.persons.length} people · ${members} members · ${attendees} attendees`;
+  document.getElementById("manual-input").value = "";
+  document.getElementById("manual-error").style.display = "none";
+  updateLastSyncedLabel();
+  hide("main-screen"); hide("empty-screen");
+  show("settings-screen");
 }
 
+// ── Render ───────────────────────────────────────────────────────────────────
 function renderMain() {
   const ti = todayIndex();
-  const d = dateKey(dateForDay(selectedDay));
-  const ids = state.assignment[selectedDay] || [];
+  const d  = dateKey(dateForDay(selectedDay));
+  const ids  = state.assignment[selectedDay] || [];
   const done = state.completions[d] || [];
-  const allDone = ids.length > 0 && ids.every(id => done.includes(id));
-  const byId = Object.fromEntries(state.persons.map(p => [p.id, p]));
+  const allDone = ids.length>0 && ids.every(id=>done.includes(id));
+  const byId = Object.fromEntries(state.persons.map(p=>[p.id,p]));
 
+  document.getElementById("day-label").textContent = `THE ABBEY · DAY ${selectedDay} OF ${CYCLE}`;
   const dayDate = dateForDay(selectedDay);
-  const isToday = selectedDay === ti;
-  document.getElementById("day-label").textContent =
-    `THE ABBEY · DAY ${selectedDay} OF ${CYCLE}`;
   document.getElementById("date-heading").textContent =
-    dayDate.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" }) +
-    (isToday ? " — Today" : "");
+    dayDate.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"}) +
+    (selectedDay===ti ? " — Today" : "");
 
-  // Names list
   const list = document.getElementById("names-list");
-  if (ids.length === 0) {
-    list.innerHTML = `<p class="empty-day">No one assigned to this day.</p>`;
-  } else {
-    list.innerHTML = ids.map(id => {
-      const p = byId[id];
-      if (!p) return "";
-      const isDone = done.includes(id);
-      return `
-        <button class="name-row" onclick="toggleName('${id}')">
+  list.innerHTML = ids.length===0
+    ? `<p class="empty-day">No one assigned to this day.</p>`
+    : ids.map(id => {
+        const p = byId[id]; if (!p) return "";
+        const isDone = done.includes(id);
+        return `<button class="name-row" onclick="toggleName('${id}')">
           <div>
-            <p class="name-text${isDone ? " done" : ""}">${p.name}</p>
-            <p class="name-meta">${p.type.toUpperCase()}${p.household ? " · "+p.household : ""}</p>
+            <p class="name-text${isDone?" done":""}">${p.name}</p>
+            <p class="name-meta">${p.type.toUpperCase()}</p>
           </div>
-          <span class="check-circle${isDone ? " checked" : ""}">
+          <span class="check-circle${isDone?" checked":""}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </span>
         </button>`;
-    }).join("");
-  }
+      }).join("");
 
-  // Mark all button
   const markBtn = document.getElementById("mark-all-btn");
-  if (ids.length === 0) { markBtn.style.display = "none"; }
+  if (ids.length===0) { markBtn.style.display="none"; }
   else {
-    markBtn.style.display = "block";
+    markBtn.style.display="block";
     markBtn.textContent = allDone ? "Mark all as not yet prayed" : "Mark all as prayed for";
     markBtn.style.background = allDone ? "transparent" : "var(--green)";
     markBtn.style.color = allDone ? "var(--walnut)" : "white";
     markBtn.style.border = allDone ? "1px solid rgba(102,70,41,.4)" : "none";
   }
 
-  // Progress
   const pn = passNumber();
   const totalPrayed = state.persons.filter(p => {
-    const dayN = Object.keys(state.assignment).find(k => state.assignment[k].includes(p.id));
+    const dayN = Object.keys(state.assignment).find(k=>state.assignment[k].includes(p.id));
     if (!dayN) return false;
-    const ds = dateKey(addDays(new Date(state.cycleStartDate + "T00:00:00"), pn * CYCLE + (Number(dayN)-1)));
-    return (state.completions[ds] || []).includes(p.id);
+    const ds = dateKey(addDays(new Date(state.cycleStartDate+"T00:00:00"), pn*CYCLE+(Number(dayN)-1)));
+    return (state.completions[ds]||[]).includes(p.id);
   }).length;
   document.getElementById("progress-label").textContent =
     `${totalPrayed} of ${state.persons.length} prayed for this cycle`;
   document.getElementById("roster-count-label").textContent =
     `Manage roster (${state.persons.length})`;
 
-  // Dots
-  const grid = document.getElementById("dot-grid");
-  grid.innerHTML = Array.from({length: CYCLE}, (_, i) => {
-    const dayN = i + 1;
-    const ds = dateKey(addDays(new Date(state.cycleStartDate + "T00:00:00"), pn * CYCLE + i));
-    const dayIds = state.assignment[dayN] || [];
-    const dayDone = (state.completions[ds] || []).filter(id => dayIds.includes(id));
-    const ratio = dayIds.length ? dayDone.length / dayIds.length : 0;
-    let cls = "dot";
-    if (ratio >= 1) cls += " complete";
-    else if (ratio > 0) cls += " partial";
-    if (dayN === ti) cls += " today";
-    if (dayN === selectedDay) cls += " selected";
-    return `<button class="${cls}" onclick="selectDay(${dayN})" aria-label="Day ${dayN}"></button>`;
-  }).join("");
+  document.getElementById("dot-grid").innerHTML =
+    Array.from({length:CYCLE},(_,i)=>{
+      const dayN = i+1;
+      const ds = dateKey(addDays(new Date(state.cycleStartDate+"T00:00:00"), pn*CYCLE+i));
+      const dayIds = state.assignment[dayN]||[];
+      const dayDone = (state.completions[ds]||[]).filter(id=>dayIds.includes(id));
+      const ratio = dayIds.length ? dayDone.length/dayIds.length : 0;
+      let cls="dot";
+      if (ratio>=1) cls+=" complete";
+      else if (ratio>0) cls+=" partial";
+      if (dayN===ti) cls+=" today";
+      if (dayN===selectedDay) cls+=" selected";
+      return `<button class="${cls}" onclick="selectDay(${dayN})" aria-label="Day ${dayN}"></button>`;
+    }).join("");
 }
 
-function selectDay(n) { selectedDay = n; renderMain(); }
-
-// ─── Install banner ───────────────────────────────────────────────────────────
+// ── Install banner ────────────────────────────────────────────────────────────
 function maybeShowInstallBanner() {
   const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-  const dismissed = localStorage.getItem("install_dismissed");
-  if (isSafari && !isStandalone && !dismissed) {
+  if (isSafari && !isStandalone && !localStorage.getItem("install_dismissed")) {
     document.getElementById("install-banner").classList.add("show");
   }
 }
-
-document.getElementById("dismiss-banner").addEventListener("click", () => {
+document.getElementById("dismiss-banner").addEventListener("click", ()=>{
   document.getElementById("install-banner").classList.remove("show");
-  localStorage.setItem("install_dismissed", "1");
+  localStorage.setItem("install_dismissed","1");
 });
 
-// ─── Service Worker ───────────────────────────────────────────────────────────
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
-}
+// ── Service Worker ────────────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 load();
 maybeShowInstallBanner();
-if (state.persons.length === 0) {
-  showSetup();
-} else {
+if (state.persons.length > 0) {
   selectedDay = todayIndex();
   showMain();
+  syncRoster(true); // quiet background sync
+} else {
+  showEmpty("Looking for roster.csv on GitHub…");
+  syncRoster(false);
 }
 </script>
 </body>
