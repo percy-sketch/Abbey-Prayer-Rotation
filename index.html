@@ -341,7 +341,9 @@ function passNumber() {
   return Math.floor(daysBetween(state.cycleStartDate, today()) / CYCLE);
 }
 function dateForDay(dayN) {
-  return addDays(parseLocalDate(state.cycleStartDate), passNumber()*CYCLE+(dayN-1));
+  // Compute relative to today() so display is always anchored to the real local date,
+  // completely bypassing any timezone issues with stored date strings.
+  return addDays(today(), dayN - todayIndex());
 }
 
 // ── CSV parsing ──────────────────────────────────────────────────────────────

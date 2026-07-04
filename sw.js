@@ -1,4 +1,4 @@
-const CACHE = "abbey-prayer-v1";
+const CACHE = "abbey-prayer-v3";
 const ASSETS = ["./index.html", "./manifest.json"];
 
 self.addEventListener("install", e => {
