@@ -311,6 +311,13 @@ function load() {
 }
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
+// Parse a "YYYY-MM-DD" string as LOCAL midnight (new Date(str) treats bare
+// date strings as UTC, which shifts the date in non-UTC timezones).
+function parseLocalDate(s) {
+  if (s instanceof Date) return s;
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
 function dateKey(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth()+1).padStart(2,'0');
@@ -320,8 +327,8 @@ function dateKey(d) {
 function today()    { const d = new Date(); d.setHours(0,0,0,0); return d; }
 function addDays(d,n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
 function daysBetween(a,b) {
-  const _a = new Date(a); _a.setHours(0,0,0,0);
-  const _b = new Date(b); _b.setHours(0,0,0,0);
+  const _a = parseLocalDate(a); _a.setHours(0,0,0,0);
+  const _b = parseLocalDate(b); _b.setHours(0,0,0,0);
   return Math.round((_b-_a)/86400000);
 }
 function todayIndex() {
@@ -334,7 +341,7 @@ function passNumber() {
   return Math.floor(daysBetween(state.cycleStartDate, today()) / CYCLE);
 }
 function dateForDay(dayN) {
-  return addDays(new Date(state.cycleStartDate+"T00:00:00"), passNumber()*CYCLE+(dayN-1));
+  return addDays(parseLocalDate(state.cycleStartDate), passNumber()*CYCLE+(dayN-1));
 }
 
 // ── CSV parsing ──────────────────────────────────────────────────────────────
@@ -557,7 +564,7 @@ function renderMain() {
   const totalPrayed = state.persons.filter(p => {
     const dayN = Object.keys(state.assignment).find(k=>state.assignment[k].includes(p.id));
     if (!dayN) return false;
-    const ds = dateKey(addDays(new Date(state.cycleStartDate+"T00:00:00"), pn*CYCLE+(Number(dayN)-1)));
+    const ds = dateKey(addDays(parseLocalDate(state.cycleStartDate), pn*CYCLE+(Number(dayN)-1)));
     return (state.completions[ds]||[]).includes(p.id);
   }).length;
   document.getElementById("progress-label").textContent =
@@ -568,7 +575,7 @@ function renderMain() {
   document.getElementById("dot-grid").innerHTML =
     Array.from({length:CYCLE},(_,i)=>{
       const dayN = i+1;
-      const ds = dateKey(addDays(new Date(state.cycleStartDate+"T00:00:00"), pn*CYCLE+i));
+      const ds = dateKey(addDays(parseLocalDate(state.cycleStartDate), pn*CYCLE+i));
       const dayIds = state.assignment[dayN]||[];
       const dayDone = (state.completions[ds]||[]).filter(id=>dayIds.includes(id));
       const ratio = dayIds.length ? dayDone.length/dayIds.length : 0;
